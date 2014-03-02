@@ -19,18 +19,18 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 public class MainActivity extends Activity implements SelectionListener {
 
 	public static final String TWEET_FILENAME = "tweets.txt";
-	public static final String[] FRIENDS = { "taylorswift13", "msrebeccablack",
-			"ladygaga" };
+	public static final String[] FRIENDS = { "taylorswift13", "msrebeccablack", "ladygaga" };
 	public static final String DATA_REFRESHED_ACTION = "course.labs.notificationslab.DATA_REFRESHED";
 	
 	private static final int NUM_FRIENDS = 3;
-	private static final String URL_LGAGA = "https://d396qusza40orc.cloudfront.net/android%2FLabs%2FUserNotifications%2Fladygaga.txt";
-	private static final String URL_RBLACK = "https://d396qusza40orc.cloudfront.net/android%2FLabs%2FUserNotifications%2Frebeccablack.txt";
-	private static final String URL_TSWIFT = "https://d396qusza40orc.cloudfront.net/android%2FLabs%2FUserNotifications%2Ftaylorswift.txt";
+	private static final String URL_LGAGA  = "https://d396qusza40orc.cloudfront.net/android/Labs/UserNotifications/ladygaga.txt";
+	private static final String URL_RBLACK = "https://d396qusza40orc.cloudfront.net/android/Labs/UserNotifications/rebeccablack.txt";
+	private static final String URL_TSWIFT = "https://d396qusza40orc.cloudfront.net/android/Labs/UserNotifications/taylorswift.txt";
 	private static final String TAG = "Lab-Notifications";
 	private static final long TWO_MIN = 2 * 60 * 1000;
 	private static final int UNSELECTED = -1;
@@ -80,19 +80,17 @@ public class MainActivity extends Activity implements SelectionListener {
 
 		if (!mIsFresh) {
 
-			// TODO:
+			//DONE:
 			// Show a Toast Notification to inform user that 
 			// the app is "Downloading Tweets from Network"
 			log ("Issuing Toast Message");
-
+			Toast.makeText(getApplicationContext(), "Downloading Tweets from Network",
+				       Toast.LENGTH_LONG).show();
 			
-			
-			// TODO:
+			//DONE:
 			// Start new AsyncTask to download Tweets from network
+			new DownloaderTask(MainActivity.this).execute(URL_TSWIFT, URL_RBLACK, URL_LGAGA);
 
-
-
-			
 			// Set up a BroadcastReceiver to receive an Intent when download
 			// finishes. 
 			mRefreshReceiver = new BroadcastReceiver() {
@@ -101,12 +99,13 @@ public class MainActivity extends Activity implements SelectionListener {
 
 					log("BroadcastIntent received in MainActivity");
 
-					// TODO:				
+					// DONE:
 					// Check to make sure this is an ordered broadcast
 					// Let sender know that the Intent was received
 					// by setting result code to RESULT_OK
-
-
+					if (isOrderedBroadcast()) {
+						sendOrderedBroadcast(new Intent(), null, null, null, RESULT_OK, null, null);
+					}
 				}
 			};
 
@@ -176,23 +175,21 @@ public class MainActivity extends Activity implements SelectionListener {
 	protected void onResume() {
 		super.onResume();
 
-		// TODO:
+		// DONE:
 		// Register the BroadcastReceiver to receive a 
 		// DATA_REFRESHED_ACTION broadcast
+		registerReceiver(mRefreshReceiver, new IntentFilter(DATA_REFRESHED_ACTION));
 
-
-		
 	}
 
 	@Override
 	protected void onPause() {
 
-		// TODO:
+		// DONE:
 		// Unregister the BroadcastReceiver
+		if (mRefreshReceiver != null)
+			unregisterReceiver(mRefreshReceiver);
 
-
-		
-		
 		super.onPause();
 
 	}
@@ -277,3 +274,14 @@ public class MainActivity extends Activity implements SelectionListener {
 		Log.i(TAG, msg);
 	}
 }
+
+/***** for emacs
+Local Variables:
+c-basic-offset: 4
+tab-width: 4
+indent-tabs-mode: t
+End:
+*/
+/***** for vi and vim
+vi: set ts=4 sw=4 noet:
+*/
